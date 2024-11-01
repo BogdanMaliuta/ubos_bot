@@ -35,6 +35,11 @@
         "verboselogging": false
     },
     {
+        "id": "ee991f7506e4539a",
+        "type": "google-cloud-credentials",
+        "name": "key"
+    },
+    {
         "id": "ccb219f6231e15f7",
         "type": "telegram receiver",
         "z": "795430eda9bd13a9",
@@ -124,7 +129,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 990,
+        "x": 1010,
         "y": 420,
         "wires": [
             [
@@ -148,10 +153,12 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1190,
+        "x": 1210,
         "y": 420,
         "wires": [
-            []
+            [
+                "3c0ada8c58308a60"
+            ]
         ]
     },
     {
@@ -204,6 +211,113 @@
         "y": 560,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "3c0ada8c58308a60",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "check response",
+        "func": "if (msg.statusCode == 200) {\n    let type = \"message\"\n\n    if (msg.payload.choices) {\n        msg.answer = msg.payload.choices[0].message.content\n        flow.set(\"content\", msg.answer);\n    }\n\n    if (msg.payload.data) {\n        type = \"photo\"\n        msg.answer = msg.payload.data[0].url\n    }\n\n    msg.payload = {\n        content: msg.answer,\n        type,\n        chatId: flow.get(\"chatId\")\n    }\n\n    return [msg, null];\n}\nelse {\n    msg.payload = {\n        content: JSON.stringify(msg.payload),\n        type: \"message\",\n        chatId: flow.get(\"chatId\")\n    }\n\n    return [null, msg]\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1400,
+        "y": 420,
+        "wires": [
+            [
+                "4f0c45a8e2882080",
+                "1356432875255b52"
+            ],
+            [
+                "76270848f0706832"
+            ]
+        ]
+    },
+    {
+        "id": "1356432875255b52",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "TTS Request",
+        "func": "msg.fromApp = msg.payload;\n\nmsg.method = \"POST\"\nmsg.url = 'https://api.openai.com/v1/audio/speech';\nmsg.headers = {\n    'Content-Type': 'application/json',  \n    'Authorization': env.get(\"OpenAI\")\n};\n\nmsg.payload = {\n    \"model\": \"tts-1\",\n    \"voice\": \"alloy\",\n    \"input\": flow.get(\"content\")\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1630,
+        "y": 420,
+        "wires": [
+            [
+                "d7c27ab21d9ccfaf"
+            ]
+        ]
+    },
+    {
+        "id": "d7c27ab21d9ccfaf",
+        "type": "http request",
+        "z": "795430eda9bd13a9",
+        "name": "",
+        "method": "use",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1810,
+        "y": 420,
+        "wires": [
+            [
+                "e85c3e182542abaf"
+            ]
+        ]
+    },
+    {
+        "id": "e85c3e182542abaf",
+        "type": "file",
+        "z": "795430eda9bd13a9",
+        "name": "audio",
+        "filename": "/tmp/audio.mp3",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1970,
+        "y": 420,
+        "wires": [
+            [
+                "dd17438befb4f438"
+            ]
+        ]
+    },
+    {
+        "id": "dd17438befb4f438",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "send voice message",
+        "func": "msg.payload = {\n    type: \"voice\",\n    content: '/tmp/audio.mp3',\n    chatId: flow.get(\"chatId\"),\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2160,
+        "y": 420,
+        "wires": [
+            [
+                "4f0c45a8e2882080"
+            ]
         ]
     }
 ]

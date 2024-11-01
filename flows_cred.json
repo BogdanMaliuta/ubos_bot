@@ -1,5 +1,10 @@
 {
     "381c1d4e61ea0531": {
         "token": "7620185684:AAHROmzq2l1zxJ0eLFvrfA_5yjyJh281XwA"
+    },
+    "d7c27ab21d9ccfaf": {},
+    "ee991f7506e4539a": {
+        "name": "key",
+        "account": "env.get(\"GCCred\")"
     }
 }
