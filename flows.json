@@ -1,1 +1,209 @@
-[]
+[
+    {
+        "id": "795430eda9bd13a9",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "381c1d4e61ea0531",
+        "type": "telegram bot",
+        "botname": "ubos",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "testenvironment": false,
+        "updatemode": "polling",
+        "addressfamily": "",
+        "pollinterval": "300",
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": "6667",
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbotport": "8443",
+        "publicbotport": "8443",
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "ccb219f6231e15f7",
+        "type": "telegram receiver",
+        "z": "795430eda9bd13a9",
+        "name": "",
+        "bot": "381c1d4e61ea0531",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 170,
+        "y": 420,
+        "wires": [
+            [
+                "3dd6081f57edc79c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4f0c45a8e2882080",
+        "type": "telegram sender",
+        "z": "795430eda9bd13a9",
+        "name": "",
+        "bot": "381c1d4e61ea0531",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 790,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3dd6081f57edc79c",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "GPT 3.5 Request",
+        "func": "msg.fromApp = msg.payload;\nflow.set(\"chatId\", msg.fromApp.chatId);\nif(msg.payload.content=='/start'){\n    msg.payload = {\n        content: \"Даний бот відповідатиме як давньогрецький Філософ Сократ, а картини малюватиме у Українському стилі.\",\n        type: \"message\",\n        chatId: flow.get(\"chatId\")\n    }\n    return[null,msg]\n}\nelse{\nmsg.method = \"POST\"\nmsg.url = 'https://api.openai.com/v1/chat/completions';\nmsg.headers = {\n    'Content-Type': 'application/json',  \n    'Authorization': env.get(\"OpenAI\")\n};\nmsg.payload = {\n    \"model\": \"gpt-3.5-turbo-16k\",\n    \"temperature\": 0.2,\n    \"messages\": [\n   \n        {\n            \"role\": \"system\", \"content\": `Ти давньогрецький філософ Сократ, який ділиться своєю мудрістю з наступними поколіннями. Будь ласка формулюй відповіді, так як б їх сформулював Сократ.`\n        },\n        {\n            \"role\": \"user\", \"content\": msg.fromApp.content\n        }\n    ]\n}\n\n\n\n\nreturn [msg,null];\n}\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 420,
+        "wires": [
+            [
+                "ab04b8206d0691b1"
+            ],
+            [
+                "69b8d77895ac459d"
+            ]
+        ]
+    },
+    {
+        "id": "ab04b8206d0691b1",
+        "type": "http request",
+        "z": "795430eda9bd13a9",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 610,
+        "y": 420,
+        "wires": [
+            [
+                "c4ab546104fa9c83"
+            ]
+        ]
+    },
+    {
+        "id": "dbabb1d7e9bff4cc",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "DALL-E Request",
+        "func": "msg.fromApp = msg.payload;\n\nmsg.method = \"POST\"\nmsg.url = 'https://api.openai.com/v1/images/generations';\nmsg.headers = {\n    'Content-Type': 'application/json',  \n    'Authorization': env.get(\"OpenAI\")\n\n\n};\n\nmsg.payload = {\n    \"model\":\"dall-e-3\",\n    \"prompt\": `${msg.payload.content}, згенеруй це в українському стилі`,\n    \"size\": \"1024x1024\",\n    \"quality\": \"standard\"\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 420,
+        "wires": [
+            [
+                "7977cab675df52c8"
+            ]
+        ]
+    },
+    {
+        "id": "7977cab675df52c8",
+        "type": "http request",
+        "z": "795430eda9bd13a9",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1190,
+        "y": 420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "69b8d77895ac459d",
+        "type": "telegram sender",
+        "z": "795430eda9bd13a9",
+        "name": "send start message",
+        "bot": "381c1d4e61ea0531",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 430,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c4ab546104fa9c83",
+        "type": "function",
+        "z": "795430eda9bd13a9",
+        "name": "check response",
+        "func": "if (msg.statusCode == 200) {\n    let type = \"message\"\n\n    if (msg.payload.choices) {\n        msg.answer = msg.payload.choices[0].message.content\n        flow.set(\"content\", msg.answer);\n    }\n\n    if (msg.payload.data) {\n        type = \"photo\"\n        msg.answer = msg.payload.data[0].url\n    }\n\n    msg.payload = {\n        content: msg.answer,\n        type,\n        chatId: flow.get(\"chatId\")\n    }\n\n    return [msg, null];\n}\nelse {\n    msg.payload = {\n        content: JSON.stringify(msg.payload),\n        type: \"message\",\n        chatId: flow.get(\"chatId\")\n    }\n\n    return [null, msg]\n}",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 420,
+        "wires": [
+            [
+                "4f0c45a8e2882080",
+                "dbabb1d7e9bff4cc"
+            ],
+            [
+                "76270848f0706832"
+            ]
+        ]
+    },
+    {
+        "id": "76270848f0706832",
+        "type": "telegram sender",
+        "z": "795430eda9bd13a9",
+        "name": "Send Error Message",
+        "bot": "381c1d4e61ea0531",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 800,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    }
+]
